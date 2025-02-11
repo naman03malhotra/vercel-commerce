@@ -5,6 +5,7 @@ import { FourthwallProduct } from "./types";
 
 const API_URL = process.env.SERVER_URL || '';
 const SERVICE_TOKEN = process.env.SERVICE_TOKEN || '';
+const STORE_ID = process.env.STORE_ID || '';
 
 if (!API_URL || !SERVICE_TOKEN) {
   throw new Error('Missing required environment variables: SERVER_URL or SERVICE_TOKEN');
@@ -50,7 +51,7 @@ async function fourthwallGet<T>(url: string, query: Record<string, string | numb
         ...options,
         headers: {
           'Content-Type': 'application/json',
-          'X-WB-Client-Site': 'mylocalsite',
+          'X-WB-Client-Site': STORE_ID,
           ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
           ...options.headers
         },
@@ -96,7 +97,7 @@ async function fourthwallPost<T>(url: string, data: any, options: RequestInit = 
 
     const headers = {
       'Content-Type': 'application/json',
-      'X-WB-Client-Site': 'mylocalsite',
+      'X-WB-Client-Site': STORE_ID,
       ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
       ...options.headers
     };
