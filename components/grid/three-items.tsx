@@ -1,5 +1,5 @@
 import { GridTileImage } from 'components/grid/tile';
-import { getCollectionProducts } from 'lib/fourthwall';
+import { getProducts } from 'lib/fourthwall';
 import type { Product } from 'lib/types';
 import Link from 'next/link';
 
@@ -20,7 +20,7 @@ function ThreeItemGridItem({
     >
       <Link
         className="relative block aspect-square h-full w-full"
-        href={`/product/${item.handle}?currency=${currency}`}
+        href={`/product/${item.id}?currency=${currency}`}
         prefetch={true}
       >
         <GridTileImage
@@ -34,8 +34,8 @@ function ThreeItemGridItem({
           label={{
             position: size === 'full' ? 'center' : 'bottom',
             title: item.title as string,
-            amount: item.priceRange.maxVariantPrice.amount,
-            currencyCode: item.priceRange.maxVariantPrice.currencyCode
+            amount: item.price.amount,
+            currencyCode: item.price.currencyCode
           }}
         />
       </Link>
@@ -44,10 +44,7 @@ function ThreeItemGridItem({
 }
 
 export async function ThreeItemGrid({currency}: { currency: string}) {
-  const homepageItems = await getCollectionProducts({
-    collection: process.env.NEXT_PUBLIC_FW_COLLECTION || 'all',
-    currency,
-  });
+  const homepageItems = await getProducts({ currency });
 
 
   if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) return null;

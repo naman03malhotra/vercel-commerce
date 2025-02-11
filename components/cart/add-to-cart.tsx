@@ -3,8 +3,7 @@
 import { PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem } from 'components/cart/actions';
-import { useProduct } from 'components/product/product-context';
-import { Product, ProductVariant } from 'lib/types';
+import { Product } from 'lib/types';
 import { useActionState } from 'react';
 import { useCart } from './cart-context';
 
@@ -58,27 +57,19 @@ function SubmitButton({
 }
 
 export function AddToCart({ product }: { product: Product }) {
-  const { variants, availableForSale } = product;
+  const { availableForSale } = product;
   const { addCartItem } = useCart();
-  const { state } = useProduct();
   const [message, formAction] = useActionState(addItem, null);
-
-  const variant = variants.find((variant: ProductVariant) =>
-    variant.selectedOptions.every((option) => option.value === state[option.name.toLowerCase()])
-  );
-  const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
-  const selectedVariantId = variant?.id || defaultVariantId;
-  const actionWithVariant = formAction.bind(null, selectedVariantId);
-  const finalVariant = variants.find((variant) => variant.id === selectedVariantId)!;
+  const actionWithProduct = formAction.bind(null, product);
 
   return (
     <form
       action={async () => {
-        addCartItem(finalVariant, product);
-        await actionWithVariant();
+        addCartItem(product);
+        await actionWithProduct();
       }}
     >
-      <SubmitButton availableForSale={availableForSale} selectedVariantId={selectedVariantId} />
+      <SubmitButton availableForSale={availableForSale} selectedVariantId={product.id} />
       <p aria-live="polite" className="sr-only" role="status">
         {message}
       </p>

@@ -11,11 +11,7 @@ export function Gallery({ product }: { product: Product }) {
   const updateURL = useUpdateURL();
   const imageIndex = state.image ? parseInt(state.image) : 0;
 
-  const selectedVariant = product.variants.find((variant) => {
-    return variant.selectedOptions.find((option) => option.name === 'Color' && option.value === state['color']);
-  });
-
-  const images = selectedVariant?.images || product.images.slice(0, 5);
+  const images = product.images.slice(0, 5);
 
   const nextImageIndex = imageIndex + 1 < images.length ? imageIndex + 1 : 0;
   const previousImageIndex = imageIndex === 0 ? images.length - 1 : imageIndex - 1;

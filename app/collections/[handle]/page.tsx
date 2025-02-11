@@ -1,10 +1,9 @@
-import { getCartId } from "components/cart/actions";
 import Grid from "components/grid";
 import Collections from "components/layout/collections";
 import Footer from "components/layout/footer";
 import ProductGridItems from "components/layout/product-grid-items";
 import { Wrapper } from "components/wrapper";
-import { getCart, getCollectionProducts } from "lib/fourthwall";
+import { getCart, getProducts } from "lib/fourthwall";
 
 export default async function CategoryPage({
   params,
@@ -13,10 +12,9 @@ export default async function CategoryPage({
   params: { handle: string };
   searchParams?: { currency?: string };
 }) {
-  const cartId = await getCartId();
   const currency = searchParams?.currency || 'USD';
-  const products = await getCollectionProducts({ collection: params.handle, currency, limit: 5 });
-  const cart = getCart(cartId, currency);  
+  const products = await getProducts({ currency, limit: 5 });
+  const cart = getCart();
 
   return (
     <Wrapper currency="USD" cart={cart}>

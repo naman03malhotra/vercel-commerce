@@ -7,7 +7,12 @@ module.exports = {
         protocol: 'https',
         hostname: '**',
         pathname: '**'
-      }      
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        pathname: '**'
+      }
     ]
   }
 };

@@ -1,5 +1,5 @@
-import { Cart, CartItem, Image, Money, Product, ProductVariant } from "lib/types";
-import { FourthwallCart, FourthwallCartItem, FourthwallMoney, FourthwallProduct, FourthwallProductImage, FourthwallProductVariant } from "./types";
+import { Cart, CartItem, Image, Money, Product, WooCommerceCart } from "lib/types";
+import { FourthwallCartItem, FourthwallMoney, FourthwallProduct, FourthwallProductImage, FourthwallProductVariant } from "./types";
 
 /**
  * Utils
@@ -38,54 +38,40 @@ export const reshapeProducts = (products: FourthwallProduct[]) => {
   return reshapedProducts;
 };
 
-export const reshapeProduct = (product: FourthwallProduct): Product | undefined => {
+export const reshapeProduct = (product: FourthwallProduct): Product => {
   if (!product) {
     return undefined;
   }
 
-  const { images, variants, ...rest } = product;
-
-  const minPrice = Math.min(...variants.map((v) => v.unitPrice.value));
-  const maxPrice = Math.max(...variants.map((v) => v.unitPrice.value));
-
-  const currencyCode = variants[0]?.unitPrice.currency || 'USD';
-  const attributes = variants.map((v) => (v.attributes))
-
-  const sizes = new Set(attributes.filter((a) => !!a.size).map((v) => v.size?.name));
-  const colors = new Set(attributes.filter((a) => !!a.color).map((v) => v.color?.name));
-
-  const reshapedVariants = reshapeVariants(variants);
-
   return {
-    ...rest,
+    id: product.id.toString(),
     handle: product.slug,
     title: product.name,
     descriptionHtml: product.description,
-    description: product.description,
-    images: reshapeImages(images, product.name),
-    variants: reshapedVariants,
-    priceRange: {
-      minVariantPrice: {
-        amount: minPrice.toString(),
-        currencyCode,
-      },
-      maxVariantPrice: {
-        amount: maxPrice.toString(),
-        currencyCode,
-      }
+    description: product.short_description,
+    images: product.images.map(img => ({
+      url: img.src,
+      altText: img.alt || product.name,
+      width: 0,
+      height: 0
+    })),
+    price: {
+      amount: product.prices.price.toString(),
+      currencyCode: 'USD'
     },
-    featuredImage: reshapeImages(images, product.name)[0] || DEFAULT_IMAGE,
-    options: [{
-      id: 'color',
-      name: 'Color',
-      values: [...colors].filter((c) => !!c) as string[]
-    }, {
-      id: 'size',
-      name: 'Size',
-      values: [...sizes].filter((s) => !!s) as string[]
-    }],    
-    availableForSale: reshapedVariants.some((v) => v.availableForSale),
-    tags: [],
+    featuredImage: product.images[0] ? {
+      url: product.images[0].src,
+      altText: product.images[0].alt || product.name,
+      width: 0,
+      height: 0
+    } : DEFAULT_IMAGE,
+    options: product.attributes.map(attr => ({
+      id: attr.slug,
+      name: attr.name,
+      values: attr.options
+    })),
+    availableForSale: product.is_in_stock,
+    tags: product.tags.map(tag => tag.name || ''),
     updatedAt: new Date().toISOString(),
   };
 };
@@ -151,24 +137,45 @@ const reshapeCartItem = (item: FourthwallCartItem): CartItem => {
   };
 }
 
-export const reshapeCart = (cart: FourthwallCart): Cart => {
-  const totalValue = cart.items.map((item) => item.quantity * item.variant.unitPrice.value).reduce((a, b) => a + b, 0);
-  const currencyCode = cart.items[0]?.variant.unitPrice.currency || 'USD';
-
+export const reshapeCart = (cart: WooCommerceCart): Cart => {
   return {
-    ...cart,
     cost: {
       totalAmount: {
-        amount: totalValue.toString(),
-        currencyCode,
+        amount: (cart.totals.total_price / Math.pow(10, cart.totals.currency_minor_unit)).toString(),
+        currencyCode: cart.totals.currency_code,
       },
       subtotalAmount: {
-        amount: totalValue.toString(),
-        currencyCode,
+        amount: (cart.totals.total_items / Math.pow(10, cart.totals.currency_minor_unit)).toString(),
+        currencyCode: cart.totals.currency_code,
       },
     },
-    lines: cart.items.map(reshapeCartItem),
-    currency: currencyCode,
-    totalQuantity: cart.items.map((item) => item.quantity).reduce((a, b) => a + b, 0)
+    lines: cart.items.map(item => ({
+      id: item.key,
+      quantity: item.quantity,
+      cost: {
+        totalAmount: {
+          amount: (item.totals.line_total / Math.pow(10, item.totals.currency_minor_unit)).toString(),
+          currencyCode: item.totals.currency_code
+        }
+      },
+      merchandise: {
+        id: item.product_id.toString(),
+        title: item.name,
+        selectedOptions: [],
+        product: {
+          id: item.product_id.toString(),
+          handle: item.sku,
+          title: item.name,
+          featuredImage: item.images[0] ? {
+            url: item.images[0].src,
+            altText: item.images[0].alt || item.name,
+            width: 0,
+            height: 0
+          } : DEFAULT_IMAGE
+        }
+      }
+    })),
+    currency: cart.totals.currency_code,
+    totalQuantity: cart.items.reduce((sum, item) => sum + item.quantity, 0)
   };
 };

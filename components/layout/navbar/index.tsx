@@ -1,11 +1,11 @@
 import CartModal from 'components/cart/modal';
 import LogoSquare from 'components/logo-square';
-import { getCollections } from 'lib/fourthwall';
+import { getProducts } from 'lib/fourthwall';
 import Link from 'next/link';
 import { CurrencySelector } from './currency';
 
 export async function Navbar({currency}: {currency: string}) {
-  const collections = await getCollections()
+  const products = await getProducts({currency})
 
   return (
     <nav className="relative flex items-center justify-between p-4 lg:px-6">
@@ -21,12 +21,12 @@ export async function Navbar({currency}: {currency: string}) {
               Launch on Fourthwall!
             </div>
           </Link>
-          {collections.length ? (
+          {/* {products.length ? (
             <ul className="hidden gap-6 text-sm md:flex md:items-center">
-              {collections.map((item) => (
+              {products.map((item) => (
                 <li key={item.title}>
                   <Link
-                    href={`/collections/${item.handle}`}
+                    href={`/product/${item.id}`}
                     prefetch={true}
                     className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
                   >
@@ -35,7 +35,7 @@ export async function Navbar({currency}: {currency: string}) {
                 </li>
               ))}
             </ul>
-          ) : null}
+          ) : null} */}
         </div>
         <div className="hidden justify-center md:flex md:w-1/3">
         </div>

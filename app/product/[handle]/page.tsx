@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { getCartId } from 'components/cart/actions';
 import Footer from 'components/layout/footer';
 import { Gallery } from 'components/product/gallery';
 import { ProductProvider } from 'components/product/product-context';
@@ -16,7 +15,7 @@ export async function generateMetadata({
 }: {
   params: { handle: string };
 }): Promise<Metadata> {
-  const product = await getProduct({ handle: params.handle, currency: 'USD' });
+  const product = await getProduct({ handle: params.handle, currency: 'USD' }); 
 
   if (!product) return notFound();
 
@@ -49,11 +48,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({ params, searchParams }: { params: { handle: string }, searchParams: { currency?: string } }) {
+export default async function ProductPage({ params, searchParams }: { 
+  params: { handle: string }, 
+  searchParams: { currency?: string } 
+}) {
   const currency = searchParams.currency || 'USD';
-  const cartId = await getCartId()
 
-  const cart = getCart(cartId, currency)
+  const cart = getCart();
   
   const product = await getProduct({
     handle: params.handle,
@@ -72,10 +73,10 @@ export default async function ProductPage({ params, searchParams }: { params: { 
       '@type': 'AggregateOffer',
       availability: product.availableForSale
         ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-      priceCurrency: product.priceRange.minVariantPrice.currencyCode,
-      highPrice: product.priceRange.maxVariantPrice.amount,
-      lowPrice: product.priceRange.minVariantPrice.amount
+        : 'https://schema.org/OutOfStock', 
+      priceCurrency: product.price.currency,
+      highPrice: product.price.amount, 
+      lowPrice: product.price.amount
     }
   };
 

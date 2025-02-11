@@ -83,7 +83,7 @@ export default function Collections() {
         </div>
       }
     >
-      <CollectionList />
+      {/* <CollectionList /> */}
     </Suspense>
   );
 }

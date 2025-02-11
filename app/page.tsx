@@ -1,5 +1,4 @@
 import { Carousel } from 'components/carousel';
-import { getCartId } from 'components/cart/actions';
 import { ThreeItemGrid } from 'components/grid/three-items';
 import Footer from 'components/layout/footer';
 import { Wrapper } from 'components/wrapper';
@@ -13,10 +12,9 @@ export const metadata = {
 };
 
 export default async function HomePage({ searchParams }: { searchParams: { currency?: string } }) {
-  const cartId = await getCartId();
   const currency = searchParams.currency || 'USD';
   // Don't await the fetch, pass the Promise to the context provider
-  const cart = getCart(cartId, currency);
+  const cart = getCart();
 
   return (
     <Wrapper currency={currency} cart={cart}>

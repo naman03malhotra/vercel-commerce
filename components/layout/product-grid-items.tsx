@@ -7,18 +7,18 @@ export default function ProductGridItems({ products }: { products: Product[] }) 
   return (
     <>
       {products.map((product) => (
-        <Grid.Item key={product.handle} className="animate-fadeIn">
+        <Grid.Item key={product.id} className="animate-fadeIn">
           <Link
             className="relative inline-block h-full w-full"
-            href={`/product/${product.handle}`}
+            href={`/product/${product.id}`}
             prefetch={true}
           >
             <GridTileImage
               alt={product.title}
               label={{
                 title: product.title,
-                amount: product.priceRange.maxVariantPrice.amount,
-                currencyCode: product.priceRange.maxVariantPrice.currencyCode
+                amount: product.price.amount,
+                currencyCode: product.price.currency
               }}
               src={product.featuredImage?.url}
               fill
