@@ -3,8 +3,12 @@ import * as path from 'path';
 import { reshapeCart, reshapeProduct, reshapeProducts } from "./reshape";
 import { FourthwallProduct } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_FW_API_URL || 'http://wb.test:81/store/v1';
-const STOREFRONT_TOKEN = '9a8538d2eb701a1b94943b7c335dd023556c5b9f21de56ba63d568c53a9c4aee';
+const API_URL = process.env.SERVER_URL || '';
+const SERVICE_TOKEN = process.env.SERVICE_TOKEN || '';
+
+if (!API_URL || !SERVICE_TOKEN) {
+  throw new Error('Missing required environment variables: SERVER_URL or SERVICE_TOKEN');
+}
 
 const ENDPOINTS = {
   PRODUCTS: 'products',
@@ -33,7 +37,7 @@ async function fourthwallGet<T>(url: string, query: Record<string, string | numb
       constructedUrl.searchParams.append(key, query[key].toString());
     }
   });
-  constructedUrl.searchParams.append('key', STOREFRONT_TOKEN);
+  constructedUrl.searchParams.append('key', SERVICE_TOKEN);
 
   // Log current CSRF token before making request
   console.warn('GET - Current CSRF Token:', csrfToken);
@@ -99,7 +103,7 @@ async function fourthwallPost<T>(url: string, data: any, options: RequestInit = 
 
     console.warn('POST - Headers:', headers);
 
-    const result = await fetch(`${url}?key=${STOREFRONT_TOKEN}`, {
+    const result = await fetch(`${url}?key=${SERVICE_TOKEN}`, {
       method: 'POST',
       ...options,
       headers,
